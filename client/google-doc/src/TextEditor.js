@@ -1,6 +1,7 @@
 import React, { useCallback, useRef } from 'react';
 import Quill from 'quill';
 import "quill/dist/quill.snow.css";
+import './s'
 
 const TextEditor = () => {
 
@@ -8,7 +9,7 @@ const TextEditor = () => {
     if(wrapper == null ) return;
 
     wrapper.innerHTML = " ";
-    const editor = document.getElementById("div");
+    const editor = document.createElement("div");
     wrapper.append(editor);
     new Quill(editor, { theme: "snow" });
     },[]);

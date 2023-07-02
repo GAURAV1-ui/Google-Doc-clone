@@ -1,7 +1,6 @@
 import React, { useCallback, useRef } from 'react';
 import Quill from 'quill';
 import "quill/dist/quill.snow.css";
-import './s'
 
 const TextEditor = () => {
 

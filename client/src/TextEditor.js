@@ -3,6 +3,7 @@ import Quill from 'quill';
 import "quill/dist/quill.snow.css";
 import { io } from 'socket.io-client';
 
+const SAVE_INTERVAL_MS = 2000;
 const TOOLBAR_OPTIONS = [
   [{ header: [1, 2, 3, 4, 5, 6, false] }],
   [{ font: [] }],
@@ -17,14 +18,30 @@ const TOOLBAR_OPTIONS = [
 
 
 const TextEditor = () => {
-
+  const [socket, setSocket] = useState();
+  const [quill, setQuill] = useState();
   useEffect(() => {
-    const socket = io("http://localhost:3001")
+    const s = io("http://localhost:3001");
+    setSocket(s);
 
     return () => {
-      socket.disconnect();
+      s.disconnect();
     }
   }, [])
+
+  useEffect(() => {
+    if (socket == null || quill == null) return
+
+    const handler = (delta, oldDelta, source) => {
+      if (source !== "user") return
+      socket.emit("send-changes", delta)
+    }
+    quill.on("text-change", handler)
+
+    return () => {
+      quill.off("text-change", handler)
+    }
+  }, [socket, quill])
 
 
     const wrapperRef = useCallback(wrapper => {
@@ -33,9 +50,11 @@ const TextEditor = () => {
     wrapper.innerHTML = " ";
     const editor = document.createElement("div");
     wrapper.append(editor);
-    new Quill(editor, { theme: "snow",
+    const q = new Quill(editor, { 
+        theme: "snow",
         modules: { toolbar: TOOLBAR_OPTIONS },
      });
+     setQuill(q);
     },[]);
 
   return (
